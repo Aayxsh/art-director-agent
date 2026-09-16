@@ -35,3 +35,4 @@ stale; an outdated glossary is worse than none.
 - `upscale` is a refiner pass + plain resize, not a super-resolution model; doesn't count against the round cap — [ADR 0009](adr/0009-upscale-is-refiner-plus-resize.md)
 - Every candidate is CLIP-scored automatically against the session brief, not only on request — [ADR 0010](adr/0010-automatic-clip-scoring.md)
 - Session history persists to disk (one JSON file per session) so the Phase 5 demo, a separate process, can read it — [ADR 0011](adr/0011-persisted-session-history.md)
+- Demo is a replay-only viewer over a curated, committed example set — no GPU needed, deployable on a free host — [ADR 0012](adr/0012-replay-only-demo.md)

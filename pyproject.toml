@@ -31,7 +31,7 @@ target-version = "py311"
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
-testpaths = ["pipeline", "mcp_server", "eval"]
+testpaths = ["pipeline", "mcp_server", "eval", "demo"]
 markers = [
     "gpu: tests that require a CUDA GPU (skipped in CI)",
 ]

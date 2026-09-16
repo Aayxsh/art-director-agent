@@ -1,0 +1,38 @@
+{
+  "brief": "a vintage neon sign that says OPEN glowing in a rainy city alley at night",
+  "rounds": [
+    [
+      {
+        "path": "images/03-neon-sign-r1c1.jpg",
+        "seed": 42,
+        "prompt": "a vintage neon sign that says OPEN glowing in a rainy city alley at night",
+        "negative_prompt": "",
+        "clip_score": 33.1298828125
+      },
+      {
+        "path": "images/03-neon-sign-r1c2.jpg",
+        "seed": 42,
+        "prompt": "a vintage neon sign that says OPEN glowing in a rainy city alley at night",
+        "negative_prompt": "",
+        "clip_score": 32.5439453125
+      }
+    ],
+    [
+      {
+        "path": "images/03-neon-sign-r2c1.jpg",
+        "seed": 11,
+        "prompt": "a vintage neon sign that says OPEN glowing in a rainy city alley at night, single sign only, no other text or lettering",
+        "negative_prompt": "",
+        "clip_score": 30.1025390625
+      },
+      {
+        "path": "images/03-neon-sign-r2c2.jpg",
+        "seed": 11,
+        "prompt": "a vintage neon sign that says OPEN glowing in a rainy city alley at night, single sign only, no other text or lettering",
+        "negative_prompt": "",
+        "clip_score": 33.056640625
+      }
+    ]
+  ],
+  "upscaled_path": null
+}

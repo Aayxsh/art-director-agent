@@ -43,10 +43,10 @@ Update this section at the end of every session. One line per phase, status only
 | 2 | Critique loop: agent inspects output, diagnoses problems | Done |
 | 3 | `inpaint` + `upscale` tools wired into the loop | Done |
 | 4 | `score_image` + `get_history`, iteration logging for the demo | Done |
-| 5 | Deployed demo + README with before/after grid | Not started |
+| 5 | Deployed demo + README with before/after grid | Done (demo built + deploy-ready; not actually pushed public — see below) |
 
-**Current focus:** Phase 5 — deployed demo + README with a before/after grid.
-**Known issues / open questions:** Running base + inpaint + refiner pipelines back-to-back in one process can exhaust system RAM (31GB total) and get OS-killed, even though GPU VRAM is fine — observed during Phase 3's GPU test validation. Run GPU-marked tests for different pipeline modules in separate `pytest` invocations, not one combined `-m gpu` sweep, until this is understood better. Note for Phase 5: `eval/results/*.json` may hold multiple past sessions (ADR 0011) — the demo needs a way to pick one, not assume exactly one file exists.
+**Current focus:** All 5 core phases done. Remaining optional work is listed in `README.md`'s Roadmap (full `EVAL.md` benchmark at scale, dedicated inpainting checkpoint, adversarial critic, ControlNet, batch benchmark mode).
+**Known issues / open questions:** Running base + inpaint + refiner pipelines back-to-back in one process can exhaust system RAM (31GB total) and get OS-killed, even though GPU VRAM is fine — observed during Phase 3's GPU test validation. Run GPU-marked tests for different pipeline modules in separate `pytest` invocations, not one combined `-m gpu` sweep, until this is understood better. `demo/app.py` is built, tested (headless `AppTest`), and deploy-ready for Streamlit Community Cloud — but this repo has never been pushed to a public GitHub remote and no hosting account was connected, deliberately (ADR 0012): that's the user's action to trigger, not something done automatically mid-phase.
 
 ---
 
@@ -124,6 +124,10 @@ art-director-agent/
 │   ├── scoring.py           # CLIP / aesthetic score
 │   └── logging.py           # per-iteration history for the demo
 ├── demo/
-│   └── app.py                # Streamlit/Gradio, shows the before/after loop
+│   ├── app.py                 # Streamlit — thin rendering layer, untested (composition root)
+│   ├── session_data.py        # pure data logic (list/load/score sessions) — the tested seam
+│   ├── curate_examples.py     # utility: convert real eval/results/ sessions into demo/examples/
+│   └── examples/               # committed, curated example sessions (ADR 0012) — not gitignored,
+│                                # unlike eval/results/ and outputs/
 └── README.md                 # the portfolio-facing writeup — metrics, not adjectives
 ```

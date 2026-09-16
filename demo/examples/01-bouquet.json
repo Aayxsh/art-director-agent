@@ -1,0 +1,22 @@
+{
+  "brief": "a woman holding a bouquet of flowers, photorealistic, studio lighting",
+  "rounds": [
+    [
+      {
+        "path": "images/01-bouquet-r1c1.jpg",
+        "seed": 1,
+        "prompt": "a woman holding a bouquet of flowers, photorealistic, studio lighting",
+        "negative_prompt": "",
+        "clip_score": 31.5185546875
+      },
+      {
+        "path": "images/01-bouquet-r1c2.jpg",
+        "seed": 1,
+        "prompt": "a woman holding a bouquet of flowers, photorealistic, studio lighting",
+        "negative_prompt": "",
+        "clip_score": 32.5927734375
+      }
+    ]
+  ],
+  "upscaled_path": "images/01-bouquet-upscaled.jpg"
+}

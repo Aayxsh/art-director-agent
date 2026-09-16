@@ -1,0 +1,86 @@
+{
+  "brief": "two business people shaking hands in an office, close-up photo, photorealistic",
+  "rounds": [
+    [
+      {
+        "path": "images/02-handshake-r1c1.jpg",
+        "seed": 7,
+        "prompt": "two business people shaking hands in an office, close-up photo, photorealistic",
+        "negative_prompt": "",
+        "clip_score": 26.0986328125
+      },
+      {
+        "path": "images/02-handshake-r1c2.jpg",
+        "seed": 7,
+        "prompt": "two business people shaking hands in an office, close-up photo, photorealistic",
+        "negative_prompt": "",
+        "clip_score": 25.9033203125
+      }
+    ],
+    [
+      {
+        "path": "images/02-handshake-r2c1.jpg",
+        "seed": 3,
+        "prompt": "a natural human hand grip, five distinct fingers, photorealistic handshake",
+        "negative_prompt": "",
+        "source_path": "images/02-handshake-r1c1.jpg",
+        "bbox": [
+          0.35,
+          0.35,
+          0.75,
+          0.68
+        ],
+        "clip_score": 27.9052734375
+      }
+    ],
+    [
+      {
+        "path": "images/02-handshake-r3c1.jpg",
+        "seed": 99,
+        "prompt": "a natural human hand grip, five distinct fingers, photorealistic handshake",
+        "negative_prompt": "",
+        "source_path": "images/02-handshake-r1c1.jpg",
+        "bbox": [
+          0.35,
+          0.35,
+          0.75,
+          0.68
+        ],
+        "clip_score": 26.9775390625
+      }
+    ],
+    [
+      {
+        "path": "images/02-handshake-r4c1.jpg",
+        "seed": 555,
+        "prompt": "exactly one human hand with exactly four fingers and one thumb, anatomically correct hand, photorealistic",
+        "negative_prompt": "extra fingers, deformed hand, too many fingers, mutated hand",
+        "source_path": "images/02-handshake-r1c1.jpg",
+        "bbox": [
+          0.4,
+          0.32,
+          0.72,
+          0.55
+        ],
+        "clip_score": 25.9765625
+      }
+    ],
+    [
+      {
+        "path": "images/02-handshake-r5c1.jpg",
+        "seed": 2024,
+        "prompt": "two hands clasped in a handshake, only two hands visible, natural anatomy",
+        "negative_prompt": "extra fingers, extra thumbs, deformed hands, mutated hands, blurry hands",
+        "source_path": "images/02-handshake-r1c1.jpg",
+        "bbox": [
+          0.32,
+          0.3,
+          0.78,
+          0.72
+        ],
+        "clip_score": 27.1484375
+      }
+    ]
+  ],
+  "upscaled_path": null
+}
