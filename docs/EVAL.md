@@ -4,6 +4,16 @@ The core claim of this project is that the critique loop *improves* generation
 over single-shot prompting. That claim needs a number, not an adjective — this
 doc is how to get one.
 
+**Run log:** this methodology has been run once, at the intended 24-prompt
+scale. Results: `README.md`'s Results section. Raw per-prompt data:
+`eval/results/single_shot_benchmark.json`, `eval/results/full_loop_benchmark.json`
+(fixed prompt set: `eval/benchmark_prompts.json`). One methodology deviation,
+noted for honesty: full-loop sessions that visibly improved but didn't fully
+resolve their defect after a reprompt (3 of the 6 text-category prompts) were
+stopped at 2 rounds rather than run to the 5-round cap — a judgment call to
+keep the benchmark's total runtime reasonable, not because they hit the cap.
+None of the 24 prompts in this run actually reached cap-out.
+
 ## The anchor comparison
 
 Run the same fixed prompt set through two conditions:

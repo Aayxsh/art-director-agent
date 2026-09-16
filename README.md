@@ -62,20 +62,37 @@ decisions were made (tool granularity, scoring method, iteration cap).
 
 ## Results
 
-Three real sessions, run end-to-end through the actual MCP tools on an RTX 5070
-Ti — not `docs/EVAL.md`'s full single-shot-vs-loop benchmark (that needs a
-~20-30 prompt set run under both conditions; not done yet, see Roadmap). This
-is a small sample demonstrating the mechanism, reported honestly rather than
-extrapolated: 3 sessions is evidence the loop works, not evidence of a
-pass rate.
+`docs/EVAL.md`'s full single-shot-vs-loop benchmark, run for real on the RTX
+5070 Ti: 24 fixed prompts (`eval/benchmark_prompts.json`) across all four
+failure categories, under both conditions. Every full-loop session was
+reviewed by the orchestrating agent (vision critique, not just CLIP); a
+sample of single-shot results was human-spot-checked, matching `EVAL.md`'s
+own guidance on honest small-sample reporting.
 
-| Session | Rounds used | Outcome | Best CLIP score | What happened |
+| Condition | Avg. CLIP score | Avg. iterations | Avg. latency | Human pass rate |
 |---|---|---|---|---|
-| "woman holding a bouquet of flowers..." | 1 / 5 | **Accepted**, upscaled | 32.6 | One candidate had a composition defect (face cropped out of frame); the agent picked the other without needing a fix round |
-| "two business people shaking hands..." | 5 / 5 (cap-out) | **Not confirmed** — best-scoring round returned, flagged | 27.9 | 3 inpaint attempts on a hand defect; the highest-CLIP-scoring result was actually the *worst*-looking one (fused fingers) — a real instance of the CLIP blind spot `docs/EVAL.md` predicted |
-| "vintage neon sign that says OPEN..." | 2 / 5 | Not upscaled — stopped early | 33.1 | "OPEN" rendered correctly, but secondary signage was gibberish in every attempt, including after a reprompt — a base-model text-rendering limit, not something this project's fix taxonomy addresses |
+| Single-shot (no loop) | 28.5 | 1 | 11.6s | 62.5% (5/8 spot-checked) |
+| Full critique loop | 28.9 | 1.17 | — | 87.5% (21/24, every session reviewed) |
 
-Replay all three, round by round: `streamlit run demo/app.py`.
+CLIP score barely moves between conditions — expected, given ADR 0004's whole
+point is that CLIP doesn't reliably detect the defects that matter. The real
+effect is in pass rate: the loop's ability to pick the better of multiple
+candidates, or fix a diagnosed defect, pushes it from roughly 3-in-5 to
+roughly 7-in-8.
+
+By category (full loop):
+
+| Category | Avg. CLIP | Avg. rounds | Note |
+|---|---|---|---|
+| Hands | 26.5 | 1.00 | No fixes needed in this sample — defects showed up in multi-person compositions (an extra hand, a third limb), not simple single-hand grips |
+| Multi-object | 31.6 | 1.17 | One genuine count defect (4 cats generated for a "three cats" brief, in *both* candidates) — reprompt fixed it |
+| Text | 26.3 | 1.50 | Heaviest use of the fix loop — 3/6 needed reprompting; every reprompt improved the result, but only fully resolved it in half of those cases |
+| Style/mood | 31.2 | 1.00 | No fixes needed — subjective quality was already strong single-shot |
+
+Raw per-prompt data: [`eval/results/single_shot_benchmark.json`](eval/results/single_shot_benchmark.json),
+[`eval/results/full_loop_benchmark.json`](eval/results/full_loop_benchmark.json).
+Three of those full-loop sessions, replayable round-by-round with images:
+`streamlit run demo/app.py`.
 
 Full benchmark methodology (not yet run at scale): [`docs/EVAL.md`](docs/EVAL.md)
 
@@ -108,14 +125,14 @@ Python, diffusers, MCP, Claude (vision + tool use), CLIP, Streamlit.
 
 - **CLIP score is a genuinely weak proxy for structural defects, not just a hypothetical concern.** In the handshake session, the highest-scoring candidate across all 5 rounds (27.9) was the one with visibly fused fingers — cleaner-looking later attempts scored lower. This is the concrete evidence behind ADR 0004's decision to make `score_image` advisory rather than a gate, found by running the system, not predicted in advance.
 - **Reusing the base pipeline for inpainting (ADR 0008, to stay inside the VRAM budget) has a real quality ceiling.** 3 separate inpaint attempts on the same hand defect, with different seeds and step counts, never reliably converged. A dedicated inpainting-finetuned checkpoint is the next thing to try if fix quality matters more than the VRAM saved — that revisit trigger is already written into the ADR.
-- **Text-in-image isn't a "fix" problem, it's a base-model problem.** Reprompting regenerated the whole scene and still produced gibberish secondary signage. This project's Fix mapping (`docs/CONTEXT.md`) has no category for "the model can't render text reliably" — `docs/EVAL.md` predicted this exact failure mode before any code was written, and it held up.
+- **Text-in-image is a base-model problem, but reprompting still helps more than expected.** Across the 24-prompt benchmark, every reprompt attempt on garbled text measurably improved it — a fully illegible cake message became "BIRTHDDAY" (one extra letter), an unreadable menu's headline became a clean "COFFEE" — but only half of those attempts reached a fully correct result. Worth the fix budget, not a guaranteed fix.
+- **The loop's real value shows up as pass rate, not CLIP score.** Across the full 24-prompt benchmark, CLIP score barely differs between single-shot and full-loop (28.5 vs 28.9) — expected, since ADR 0004's whole premise is that CLIP misses what matters. Human-judged pass rate is where the gap is real: ~62.5% single-shot vs. ~87.5% full-loop, almost entirely from picking the better of multiple candidates or fixing a diagnosed defect, not from the score improving.
+- **Hand defects cluster in multi-person compositions, not simple grips.** All 6 "hands" prompts needed zero fixes when the shot was one person's hand (typing, gripping a rock face); the actual defects — an extra hand near a violin's scroll, a third limb fragment at a frame edge — showed up specifically when multiple hands/arms overlapped in frame. A narrower, more useful mental model than "SDXL is bad at hands" going in.
 - **My own vision-based defect diagnosis was wrong twice on the same image**, misreading a fused-finger region as fixed when it wasn't (caught by a second reviewer, not by `score_image` — which also scored that image highest). A single vision pass isn't a reliable ground truth either; this is worth remembering before trusting any one critique signal too far, agent or metric.
 
 ## Roadmap
 
-- [ ] Run `docs/EVAL.md`'s full single-shot-vs-loop benchmark (~20-30 prompts,
-      both conditions) — the 3-session sample above shows the mechanism works,
-      not a pass rate
+- [x] Run `docs/EVAL.md`'s full single-shot-vs-loop benchmark — see Results
 - [ ] Dedicated inpainting-finetuned checkpoint, if the shared-component
       pipeline's hand-fix quality ceiling (see What I learned) turns out to
       matter more than the VRAM it saves (ADR 0008)

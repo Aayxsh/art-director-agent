@@ -1,0 +1,194 @@
+[
+  {
+    "id": 1,
+    "category": "hands",
+    "prompt": "a chef holding a knife and chopping vegetables in a professional kitchen, photorealistic",
+    "path": "outputs\\01534029139b4f2c858789c2236bfc80.png",
+    "clip_score": 26.1474609375,
+    "latency_s": 48.16
+  },
+  {
+    "id": 2,
+    "category": "hands",
+    "prompt": "a violinist playing the violin on stage, close-up of hands and instrument",
+    "path": "outputs\\9525cb12c44642229a4a62ca90acebfd.png",
+    "clip_score": 19.66552734375,
+    "latency_s": 9.75
+  },
+  {
+    "id": 3,
+    "category": "hands",
+    "prompt": "two friends high-fiving at an outdoor party, photorealistic",
+    "path": "outputs\\e8aad0fd230346b9ad710ed6dfc27fa0.png",
+    "clip_score": 34.9853515625,
+    "latency_s": 11.05
+  },
+  {
+    "id": 4,
+    "category": "hands",
+    "prompt": "a person typing on a laptop keyboard, close-up of hands",
+    "path": "outputs\\d98d2890b61841fe8a4c16b93655828c.png",
+    "clip_score": 20.71533203125,
+    "latency_s": 10.45
+  },
+  {
+    "id": 5,
+    "category": "hands",
+    "prompt": "a barista pouring latte art into a cup, hands visible, close-up",
+    "path": "outputs\\d1c2c8bec3924bcd97d5a364a769ca5c.png",
+    "clip_score": 25.0732421875,
+    "latency_s": 10.83
+  },
+  {
+    "id": 6,
+    "category": "hands",
+    "prompt": "a rock climber gripping a cliff edge, close-up on hands and fingers",
+    "path": "outputs\\57187878e8214dd0bc1c6405ce2fc794.png",
+    "clip_score": 29.248046875,
+    "latency_s": 10.62
+  },
+  {
+    "id": 7,
+    "category": "multi_object",
+    "prompt": "a farmers market stall with fruits, vegetables, and a wooden cart, photorealistic",
+    "path": "outputs\\7c5c99f29d224448ad03585497b45407.png",
+    "clip_score": 35.5224609375,
+    "latency_s": 11.24
+  },
+  {
+    "id": 8,
+    "category": "multi_object",
+    "prompt": "three cats sitting together on a windowsill in sunlight",
+    "path": "outputs\\04c3974a1f1947c3bb9d7361f6e93234.png",
+    "clip_score": 30.3466796875,
+    "latency_s": 10.44
+  },
+  {
+    "id": 9,
+    "category": "multi_object",
+    "prompt": "a messy desk with a laptop, coffee mug, notebooks, and a small plant",
+    "path": "outputs\\06c7d43d8fe24a2db1fccd4e6624c222.png",
+    "clip_score": 28.6865234375,
+    "latency_s": 9.73
+  },
+  {
+    "id": 10,
+    "category": "multi_object",
+    "prompt": "a group of five people having a picnic in a park, photorealistic",
+    "path": "outputs\\4812d53cfa0c4fe3b034ebb51c31b237.png",
+    "clip_score": 30.56640625,
+    "latency_s": 9.69
+  },
+  {
+    "id": 11,
+    "category": "multi_object",
+    "prompt": "a toy shelf with stacked wooden blocks, a teddy bear, and toy cars",
+    "path": "outputs\\f64288ce79084cd590d33111a380bb8c.png",
+    "clip_score": 33.8134765625,
+    "latency_s": 9.74
+  },
+  {
+    "id": 12,
+    "category": "multi_object",
+    "prompt": "a busy street food market at dusk with multiple vendors and stalls",
+    "path": "outputs\\8bd73cecdff34568a859418217a1eaf1.png",
+    "clip_score": 26.025390625,
+    "latency_s": 9.69
+  },
+  {
+    "id": 13,
+    "category": "text",
+    "prompt": "a vintage bakery storefront with a sign that says FRESH BREAD",
+    "path": "outputs\\e86852a9979843f4a2d07e2566bbb71b.png",
+    "clip_score": 29.0771484375,
+    "latency_s": 9.71
+  },
+  {
+    "id": 14,
+    "category": "text",
+    "prompt": "a birthday cake with candles and icing that spells HAPPY BIRTHDAY",
+    "path": "outputs\\a1f3bc09b1174793a27ac5cbe202cbdb.png",
+    "clip_score": 26.513671875,
+    "latency_s": 9.71
+  },
+  {
+    "id": 15,
+    "category": "text",
+    "prompt": "a red stop sign at a quiet suburban intersection, photorealistic",
+    "path": "outputs\\586af92e929e4dfa8b470443a202f0ee.png",
+    "clip_score": 34.228515625,
+    "latency_s": 9.69
+  },
+  {
+    "id": 16,
+    "category": "text",
+    "prompt": "a chalkboard menu outside a cafe listing coffee prices",
+    "path": "outputs\\50e228cf2b6740f3bd968fe83e180f8c.png",
+    "clip_score": 23.876953125,
+    "latency_s": 9.7
+  },
+  {
+    "id": 17,
+    "category": "text",
+    "prompt": "a race car with the number 7 painted on its side, on a track",
+    "path": "outputs\\28fb82aa81044591b65b5d4bab5e2c9d.png",
+    "clip_score": 22.802734375,
+    "latency_s": 9.71
+  },
+  {
+    "id": 18,
+    "category": "text",
+    "prompt": "a hardcover book with a title printed on its cover, lying on a wooden table",
+    "path": "outputs\\fa7c9bbbba1c4abc881b482949c7496e.png",
+    "clip_score": 24.560546875,
+    "latency_s": 9.67
+  },
+  {
+    "id": 19,
+    "category": "style_mood",
+    "prompt": "a cozy log cabin interior in winter, warm and inviting mood, fireplace lit",
+    "path": "outputs\\96df403ee01e448780f981f8eab56858.png",
+    "clip_score": 31.201171875,
+    "latency_s": 9.67
+  },
+  {
+    "id": 20,
+    "category": "style_mood",
+    "prompt": "a cyberpunk city street at night, neon signs reflecting in rain",
+    "path": "outputs\\7436db9fa9ed47eb98099b279c6e3d58.png",
+    "clip_score": 31.103515625,
+    "latency_s": 9.7
+  },
+  {
+    "id": 21,
+    "category": "style_mood",
+    "prompt": "a serene Japanese zen garden at sunrise, peaceful atmosphere",
+    "path": "outputs\\ff828062ae6d4d1c95d75de73be00053.png",
+    "clip_score": 31.884765625,
+    "latency_s": 9.67
+  },
+  {
+    "id": 22,
+    "category": "style_mood",
+    "prompt": "a dramatic stormy seascape with a lighthouse, moody lighting",
+    "path": "outputs\\111c4dc5f67d4cdd82b315350ae0abf7.png",
+    "clip_score": 27.734375,
+    "latency_s": 9.67
+  },
+  {
+    "id": 23,
+    "category": "style_mood",
+    "prompt": "a whimsical fairy tale forest with glowing mushrooms at dusk",
+    "path": "outputs\\dafe60b7749e4590bbf654278f5f1d02.png",
+    "clip_score": 28.8330078125,
+    "latency_s": 9.65
+  },
+  {
+    "id": 24,
+    "category": "style_mood",
+    "prompt": "an abandoned industrial warehouse interior, moody atmospheric lighting",
+    "path": "outputs\\5be0e82331d4439dbf0aea7f9e49c347.png",
+    "clip_score": 31.15234375,
+    "latency_s": 9.68
+  }
+]

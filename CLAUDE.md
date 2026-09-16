@@ -122,7 +122,7 @@ art-director-agent/
 │   └── test_*.py            # TDD, colocated
 ├── eval/
 │   ├── scoring.py           # CLIP / aesthetic score
-│   └── logging.py           # per-iteration history for the demo
+│   └── session_log.py       # per-iteration history for the demo (was logging.py — renamed, shadowed stdlib)
 ├── demo/
 │   ├── app.py                 # Streamlit — thin rendering layer, untested (composition root)
 │   ├── session_data.py        # pure data logic (list/load/score sessions) — the tested seam

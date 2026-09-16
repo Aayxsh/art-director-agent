@@ -17,6 +17,10 @@ models/
 outputs/
 generated_images/
 eval/results/*.json
+# ...except the committed benchmark artifacts backing README.md's Results
+# table (docs/EVAL.md) — real research data, not per-session replay logs.
+!eval/results/single_shot_benchmark.json
+!eval/results/full_loop_benchmark.json
 
 # OS
 .DS_Store

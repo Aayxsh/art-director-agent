@@ -20,7 +20,7 @@ apply — removed from this list rather than left as a stale checkbox:
       the server or leave the agent waiting indefinitely
 - [ ] **Cache identical (prompt, seed, params) calls** — the agent may retry
       a configuration it's already tried; don't regenerate for free
-- [ ] **Structured logging per iteration** — already planned in `eval/logging.py`;
+- [ ] **Structured logging per iteration** — already planned in `eval/session_log.py`;
       make sure failures log too, not just successes
 - [ ] **Input limits** — cap prompt length and, for `inpaint`, uploaded mask/
       image size, before they hit the pipeline

@@ -18,7 +18,7 @@ best-scoring one is a reasonable result even if not a confirmed one.
 
 ## Consequences
 
-`get_history` / `eval/logging.py` must retain per-round CLIP score and
+`get_history` / `eval/session_log.py` must retain per-round CLIP score and
 agent notes for every candidate generated in a session, not just the most
 recent ones, so this pick is possible at cap-out.
 

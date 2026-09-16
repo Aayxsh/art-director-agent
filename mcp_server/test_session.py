@@ -2,13 +2,13 @@ import json
 
 import pytest
 
-import eval.logging as logging_module
+import eval.session_log as session_log_module
 from mcp_server.session import ITERATION_CAP, NoActiveSession, session
 
 
 @pytest.fixture(autouse=True)
 def reset_session(monkeypatch, tmp_path):
-    monkeypatch.setattr(logging_module, "RESULTS_DIR", tmp_path)
+    monkeypatch.setattr(session_log_module, "RESULTS_DIR", tmp_path)
     session.clear()
     yield
     session.clear()

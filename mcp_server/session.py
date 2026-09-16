@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from eval.logging import log_round, start_session_log
+from eval.session_log import log_round, start_session_log
 
 # ADR 0003: 5 rounds total, shared across every fix type (reprompt, inpaint,
 # param-adjust) — one counter, not a separate budget per tool.
@@ -25,7 +25,7 @@ class Session:
 
     A single global session, matching ADR 0002's single-local-GPU,
     single-session-at-a-time scope — no session_id for callers to manage.
-    Every round is also persisted to disk (eval/logging.py, ADR 0011) so
+    Every round is also persisted to disk (eval/session_log.py, ADR 0011) so
     the Phase 5 demo, running as a separate process, can replay it.
     """
 

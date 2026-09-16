@@ -19,7 +19,7 @@ def fake_pipeline(monkeypatch, tmp_path):
     monkeypatch.setattr(generate_module, "_default_pipeline_call", fake_call)
     monkeypatch.setattr(scoring_module, "_default_pipeline_call", fake_score)
     monkeypatch.setattr("mcp_server.tools._media.OUTPUT_DIR", tmp_path)
-    monkeypatch.setattr("eval.logging.RESULTS_DIR", tmp_path)
+    monkeypatch.setattr("eval.session_log.RESULTS_DIR", tmp_path)
     session.clear()
     yield
     session.clear()

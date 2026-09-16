@@ -16,7 +16,7 @@ show.
 `demo/app.py` never triggers generation — it only reads session JSON from
 `demo/examples/`, a small, committed, hand-curated set (3 real sessions as of
 this phase) distinct from the gitignored raw logs. Each curated file extends
-the raw `eval/logging.py` schema with one additional field, `upscaled_path`
+the raw `eval/session_log.py` schema with one additional field, `upscaled_path`
 (null when the session's result was never accepted/upscaled) — `upscale`
 itself stays decoupled from session tracking (ADR 0009), so this field is
 demo-specific curation, not a change to the core logging schema. Images are

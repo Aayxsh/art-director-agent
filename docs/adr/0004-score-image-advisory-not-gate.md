@@ -29,6 +29,6 @@ either. The agent's vision judgment is trusted on its own.
 
 ## Consequences
 
-`get_history` / `eval/logging.py` must still record CLIP score every round
+`get_history` / `eval/session_log.py` must still record CLIP score every round
 even though it isn't gating — it's the only scalar comparable across
 iterations, and it's what the cap-hit fallback (ADR 0005) ranks by.

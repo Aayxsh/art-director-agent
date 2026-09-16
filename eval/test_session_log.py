@@ -2,13 +2,13 @@ import json
 
 import pytest
 
-import eval.logging as logging_module
-from eval.logging import log_round, start_session_log
+import eval.session_log as session_log_module
+from eval.session_log import log_round, start_session_log
 
 
 @pytest.fixture(autouse=True)
 def redirect_results_dir(monkeypatch, tmp_path):
-    monkeypatch.setattr(logging_module, "RESULTS_DIR", tmp_path)
+    monkeypatch.setattr(session_log_module, "RESULTS_DIR", tmp_path)
 
 
 def test_start_session_log_creates_a_file_with_the_brief():
