@@ -1,12 +1,9 @@
-import io
-import uuid
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-from mcp.server.mcpserver import Image as MCPImage
 from PIL import Image as PILImage
 
 from mcp_server.session import ITERATION_CAP, NoActiveSession, session
+from mcp_server.tools._media import save_image, thumbnail
 from pipeline.generate import (
     GeneratedCandidate,
     InvalidGenerationInput,
@@ -16,10 +13,6 @@ from pipeline.generate import (
 
 if TYPE_CHECKING:
     from mcp.server.mcpserver import MCPServer
-
-OUTPUT_DIR = Path("outputs")
-THUMBNAIL_MAX_EDGE = 768
-THUMBNAIL_QUALITY = 90
 
 
 def generate_image_tool(
@@ -83,7 +76,7 @@ def generate_image_tool(
     session.record_round(saved)
 
     return [
-        *(_thumbnail(c.image) for c in candidates),
+        *(thumbnail(c.image) for c in candidates),
         {
             "ok": True,
             "cap_hit": False,
@@ -96,7 +89,7 @@ def generate_image_tool(
 def _cap_hit_result() -> list:
     recent = session.most_recent_round()
     return [
-        *(_thumbnail(PILImage.open(c["path"])) for c in recent),
+        *(thumbnail(PILImage.open(c["path"])) for c in recent),
         {
             "ok": True,
             "cap_hit": True,
@@ -108,23 +101,13 @@ def _cap_hit_result() -> list:
 
 
 def _save_candidate(candidate: GeneratedCandidate) -> dict:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUTPUT_DIR / f"{uuid.uuid4().hex}.png"
-    candidate.image.save(path)
+    path = save_image(candidate.image)
     return {
         "path": str(path),
         "seed": candidate.seed,
         "prompt": candidate.prompt,
         "negative_prompt": candidate.negative_prompt,
     }
-
-
-def _thumbnail(image: PILImage.Image) -> MCPImage:
-    thumb = image.copy()
-    thumb.thumbnail((THUMBNAIL_MAX_EDGE, THUMBNAIL_MAX_EDGE))
-    buf = io.BytesIO()
-    thumb.convert("RGB").save(buf, format="JPEG", quality=THUMBNAIL_QUALITY)
-    return MCPImage(data=buf.getvalue(), format="jpeg")
 
 
 def register(mcp: "MCPServer") -> None:

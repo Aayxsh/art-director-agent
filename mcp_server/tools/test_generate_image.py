@@ -15,7 +15,7 @@ def fake_pipeline(monkeypatch, tmp_path):
         return [Image.new("RGB", (8, 8)) for _ in range(num_images)]
 
     monkeypatch.setattr(generate_module, "_default_pipeline_call", fake_call)
-    monkeypatch.setattr("mcp_server.tools.generate_image.OUTPUT_DIR", tmp_path)
+    monkeypatch.setattr("mcp_server.tools._media.OUTPUT_DIR", tmp_path)
     session.clear()
     yield
     session.clear()

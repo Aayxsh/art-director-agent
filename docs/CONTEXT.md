@@ -31,3 +31,5 @@ stale; an outdated glossary is worse than none.
 - Cap-out returns the best-scoring candidate, explicitly flagged — [ADR 0005](adr/0005-cap-hit-fallback.md)
 - Inline JPEG thumbnails (768px, q90) for vision critique; full-res PNG stays on disk — [ADR 0006](adr/0006-inline-thumbnail-for-vision-critique.md)
 - Session tracked as implicit global state, no `session_id` — [ADR 0007](adr/0007-implicit-global-session.md)
+- `inpaint` takes a normalized bounding box, reuses the base pipeline's shared components (no dedicated inpainting checkpoint) — [ADR 0008](adr/0008-bbox-mask-shared-inpaint-pipeline.md)
+- `upscale` is a refiner pass + plain resize, not a super-resolution model; doesn't count against the round cap — [ADR 0009](adr/0009-upscale-is-refiner-plus-resize.md)

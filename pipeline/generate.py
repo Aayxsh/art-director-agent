@@ -1,11 +1,10 @@
-import random
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import TimeoutError as FutureTimeoutError
 from dataclasses import dataclass
 
 import torch
 from PIL import Image
+
+from pipeline._runtime import PipelineExecutionError, random_seed, run_with_timeout
 
 MAX_PROMPT_LENGTH = 1000
 MIN_NUM_IMAGES, MAX_NUM_IMAGES = 1, 4
@@ -14,13 +13,16 @@ MIN_GUIDANCE, MAX_GUIDANCE = 0.0, 20.0
 
 PipelineCall = Callable[..., list[Image.Image]]
 
+__all__ = [
+    "GeneratedCandidate",
+    "InvalidGenerationInput",
+    "PipelineExecutionError",
+    "generate_image",
+]
+
 
 class InvalidGenerationInput(ValueError):
     """Raised when generate_image is called with invalid input parameters."""
-
-
-class PipelineExecutionError(RuntimeError):
-    """Raised when the underlying SDXL pipeline call fails or times out."""
 
 
 @dataclass(frozen=True)
@@ -53,12 +55,12 @@ def generate_image(
     """
     _validate_inputs(prompt, negative_prompt, num_images, guidance_scale, steps)
 
-    resolved_seed = seed if seed is not None else (seed_factory or _random_seed)()
+    resolved_seed = seed if seed is not None else (seed_factory or random_seed)()
     call = pipeline_call or _default_pipeline_call
     if call is _real_pipeline_call:
         _load_real_pipeline()  # one-time weight load; not counted against timeout_seconds
 
-    images = _run_with_timeout(
+    images = run_with_timeout(
         call,
         timeout_seconds,
         prompt=prompt,
@@ -103,25 +105,6 @@ def _validate_inputs(
         raise InvalidGenerationInput(
             f"guidance_scale must be between {MIN_GUIDANCE} and {MAX_GUIDANCE}"
         )
-
-
-def _random_seed() -> int:
-    return random.randint(0, 2**32 - 1)
-
-
-def _run_with_timeout(
-    fn: PipelineCall, timeout_seconds: float, **kwargs: object
-) -> list[Image.Image]:
-    executor = ThreadPoolExecutor(max_workers=1)
-    future = executor.submit(fn, **kwargs)
-    try:
-        return future.result(timeout=timeout_seconds)
-    except FutureTimeoutError as exc:
-        raise PipelineExecutionError(f"generation timed out after {timeout_seconds}s") from exc
-    except Exception as exc:
-        raise PipelineExecutionError(f"pipeline call failed: {exc}") from exc
-    finally:
-        executor.shutdown(wait=False)
 
 
 _real_pipeline = None

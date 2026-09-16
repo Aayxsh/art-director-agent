@@ -41,12 +41,12 @@ Update this section at the end of every session. One line per phase, status only
 | 0 | Grilled the design — CONTEXT.md + ADRs exist | Done |
 | 1 | MCP server scaffold + `generate_image` tool (base SDXL, no fixes yet) | Done |
 | 2 | Critique loop: agent inspects output, diagnoses problems | Done |
-| 3 | `inpaint` + `upscale` tools wired into the loop | Not started |
+| 3 | `inpaint` + `upscale` tools wired into the loop | Done |
 | 4 | `score_image` + `get_history`, iteration logging for the demo | Not started |
 | 5 | Deployed demo + README with before/after grid | Not started |
 
-**Current focus:** Phase 3 — `inpaint` + `upscale` tools wired into the loop.
-**Known issues / open questions:** None. Note for Phase 3: `inpaint` needs its own defect→mask design (not yet decided) and must decrement the same shared session round counter (`mcp_server/session.py`, ADR 0003/0007) — reuse `record_round`/`cap_reached`, don't build a second counter.
+**Current focus:** Phase 4 — `score_image` + `get_history`, iteration logging for the demo.
+**Known issues / open questions:** Running base + inpaint + refiner pipelines back-to-back in one process can exhaust system RAM (31GB total) and get OS-killed, even though GPU VRAM is fine — observed during Phase 3's GPU test validation. Run GPU-marked tests for different pipeline modules in separate `pytest` invocations, not one combined `-m gpu` sweep, until this is understood better.
 
 ---
 
@@ -65,8 +65,12 @@ Update this section at the end of every session. One line per phase, status only
   `pipeline/test_generate.py`), driven by `/tdd` — red, green, refactor, one
   vertical slice at a time. Don't write implementation ahead of a failing test.
 - MCP-tool-layer tests fake the underlying pipeline call by monkeypatching
-  `pipeline.generate._default_pipeline_call` — the sanctioned internal seam,
-  not a per-tool convention to reinvent (see `mcp_server/tools/test_generate_image.py`).
+  that pipeline module's `_default_pipeline_call` (`pipeline.generate`,
+  `pipeline.inpaint`, `pipeline.upscale`, ...) — the sanctioned internal
+  seam, not a per-tool convention to reinvent. Shared timeout/seed/error
+  mechanics live in `pipeline/_runtime.py`; shared thumbnail/disk-save
+  mechanics live in `mcp_server/tools/_media.py` — extend those, don't
+  duplicate them into a new pipeline operation or tool.
 - Commit after each completed phase (matching the agentic-rag-eval workflow) —
   small, reviewable, message states what changed and why.
 - No giant files. If something creeps past ~300 lines, that's a
@@ -109,9 +113,12 @@ art-director-agent/
 │   ├── server.py
 │   ├── session.py           # server-side session/round-cap tracking (ADR 0003, ADR 0005)
 │   └── tools/               # generate_image, inpaint, upscale, score_image, get_history
+│       └── _media.py         # shared thumbnail + disk-save helpers
 ├── pipeline/
+│   ├── _runtime.py           # shared timeout/seed/error-wrapping (used by every pipeline op)
 │   ├── generate.py
-│   ├── inpaint.py
+│   ├── inpaint.py            # bbox mask, shares base pipeline components (ADR 0008)
+│   ├── upscale.py            # refiner pass + resize, no super-res model (ADR 0009)
 │   └── test_*.py            # TDD, colocated
 ├── eval/
 │   ├── scoring.py           # CLIP / aesthetic score
