@@ -29,6 +29,11 @@ def generate_image_tool(
     fresh random seed is used when `seed` is omitted). Returns saved
     candidate image paths and metadata on success, or a structured error
     (`invalid_input` or `pipeline_failed`) on failure.
+
+    The first call in a session is slower than later ones (one-time SDXL
+    weight load, several GB). A `pipeline_failed` result from a timeout
+    does not guarantee GPU work actually stopped — the underlying call is
+    abandoned in the background, not cancelled.
     """
     try:
         candidates = generate_image(

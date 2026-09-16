@@ -43,7 +43,14 @@ def generate_image(
     seed_factory: Callable[[], int] | None = None,
     timeout_seconds: float = 120.0,
 ) -> list[GeneratedCandidate]:
-    """Generate `num_images` SDXL candidates for a prompt, one round of a session."""
+    """Generate `num_images` SDXL candidates for a prompt, one round of a session.
+
+    The one-time pipeline weight load on the first call is not counted
+    against `timeout_seconds`. On timeout, the underlying pipeline call is
+    abandoned, not cancelled — it keeps running in the background and
+    holding GPU state after this function has already raised
+    PipelineExecutionError.
+    """
     _validate_inputs(prompt, negative_prompt, num_images, guidance_scale, steps)
 
     resolved_seed = seed if seed is not None else (seed_factory or _random_seed)()
