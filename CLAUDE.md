@@ -38,15 +38,15 @@ Update this section at the end of every session. One line per phase, status only
 
 | Phase | Description | Status |
 |---|---|---|
-| 0 | Grilled the design — CONTEXT.md + ADRs exist | Not started |
+| 0 | Grilled the design — CONTEXT.md + ADRs exist | Done |
 | 1 | MCP server scaffold + `generate_image` tool (base SDXL, no fixes yet) | Not started |
 | 2 | Critique loop: agent inspects output, diagnoses problems | Not started |
 | 3 | `inpaint` + `upscale` tools wired into the loop | Not started |
 | 4 | `score_image` + `get_history`, iteration logging for the demo | Not started |
 | 5 | Deployed demo + README with before/after grid | Not started |
 
-**Current focus:** *(fill in each session — what you're actually working on right now)*
-**Known issues / open questions:** *(carry these forward instead of losing them between sessions)*
+**Current focus:** Phase 1 — MCP server scaffold + `generate_image` tool (base SDXL, no fixes yet), driven by `/implement` + `/tdd`.
+**Known issues / open questions:** None carried forward from Phase 0 grilling — see `docs/CONTEXT.md` decisions log.
 
 ---
 
