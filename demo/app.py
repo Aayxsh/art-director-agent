@@ -1,8 +1,14 @@
+import sys
 from pathlib import Path
 
-import streamlit as st
+# Deployed via requirements.txt (not pyproject.toml — the demo doesn't need
+# the heavy ML deps that pulls in), so the repo isn't pip-installed as a
+# package here. Make `demo.session_data` importable regardless.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from demo.session_data import best_candidate, list_examples, load_example
+import streamlit as st  # noqa: E402
+
+from demo.session_data import best_candidate, list_examples, load_example  # noqa: E402
 
 EXAMPLES_DIR = Path(__file__).parent / "examples"
 
