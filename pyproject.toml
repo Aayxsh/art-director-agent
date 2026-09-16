@@ -20,6 +20,9 @@ dev = [
     "pytest-cov",
 ]
 
+[tool.setuptools.packages.find]
+include = ["mcp_server*", "pipeline*", "eval*", "demo*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
