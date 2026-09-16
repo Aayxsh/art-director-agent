@@ -40,13 +40,13 @@ Update this section at the end of every session. One line per phase, status only
 |---|---|---|
 | 0 | Grilled the design — CONTEXT.md + ADRs exist | Done |
 | 1 | MCP server scaffold + `generate_image` tool (base SDXL, no fixes yet) | Done |
-| 2 | Critique loop: agent inspects output, diagnoses problems | Not started |
+| 2 | Critique loop: agent inspects output, diagnoses problems | Done |
 | 3 | `inpaint` + `upscale` tools wired into the loop | Not started |
 | 4 | `score_image` + `get_history`, iteration logging for the demo | Not started |
 | 5 | Deployed demo + README with before/after grid | Not started |
 
-**Current focus:** Phase 2 — critique loop: agent inspects candidates via vision, diagnoses defects against the brief.
-**Known issues / open questions:** None. Note for Phase 2: `generate_image` lazily loads the real SDXL pipeline on first call (weight load is excluded from `timeout_seconds` so a cold start doesn't fail on load time alone, but it does mean the very first call in a session is slower than subsequent ones — worth surfacing to the agent/demo if it matters for UX).
+**Current focus:** Phase 3 — `inpaint` + `upscale` tools wired into the loop.
+**Known issues / open questions:** None. Note for Phase 3: `inpaint` needs its own defect→mask design (not yet decided) and must decrement the same shared session round counter (`mcp_server/session.py`, ADR 0003/0007) — reuse `record_round`/`cap_reached`, don't build a second counter.
 
 ---
 
@@ -107,6 +107,7 @@ art-director-agent/
 │   └── adr/                # one file per real architectural decision
 ├── mcp_server/
 │   ├── server.py
+│   ├── session.py           # server-side session/round-cap tracking (ADR 0003, ADR 0005)
 │   └── tools/               # generate_image, inpaint, upscale, score_image, get_history
 ├── pipeline/
 │   ├── generate.py

@@ -1,7 +1,12 @@
+import io
 import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from mcp.server.mcpserver import Image as MCPImage
+from PIL import Image as PILImage
+
+from mcp_server.session import ITERATION_CAP, NoActiveSession, session
 from pipeline.generate import (
     GeneratedCandidate,
     InvalidGenerationInput,
@@ -13,6 +18,8 @@ if TYPE_CHECKING:
     from mcp.server.mcpserver import MCPServer
 
 OUTPUT_DIR = Path("outputs")
+THUMBNAIL_MAX_EDGE = 768
+THUMBNAIL_QUALITY = 90
 
 
 def generate_image_tool(
@@ -22,19 +29,42 @@ def generate_image_tool(
     num_images: int = 2,
     guidance_scale: float = 7.5,
     steps: int = 30,
-) -> dict:
-    """Generate SDXL candidate images for a brief.
+    continue_session: bool = False,
+) -> list | dict:
+    """Generate SDXL candidate images for a brief, one round of a session.
 
-    Produces `num_images` candidates from `prompt` at a shared seed (a
-    fresh random seed is used when `seed` is omitted). Returns saved
-    candidate image paths and metadata on success, or a structured error
-    (`invalid_input` or `pipeline_failed`) on failure.
+    `continue_session=False` (the default) starts a fresh session at
+    `prompt` — use this for a new brief. `continue_session=True` continues
+    the current session for a fix round (reprompt or a param retry); it
+    fails with `no_active_session` if no session was started first.
+
+    A session gets 5 rounds total (ADR 0003), shared across every kind of
+    fix. Once the cap is reached, further `continue_session=True` calls
+    don't run generation again — they return the most recent round's
+    candidates again with `cap_hit: true`, never silently as a fresh
+    success and never discarding the work already done.
+
+    On success, returns a list mixing viewable JPEG thumbnails (resized;
+    the full-resolution PNG is only on disk, at each candidate's `path`)
+    with a trailing metadata dict (`ok`, `cap_hit`, `rounds_used`,
+    `candidates`). On failure, returns a single structured error dict
+    (`invalid_input` or `pipeline_failed` before generation runs;
+    `no_active_session` if `continue_session=True` with nothing started).
 
     The first call in a session is slower than later ones (one-time SDXL
     weight load, several GB). A `pipeline_failed` result from a timeout
     does not guarantee GPU work actually stopped — the underlying call is
     abandoned in the background, not cancelled.
     """
+    if continue_session:
+        try:
+            if session.cap_reached():
+                return _cap_hit_result()
+        except NoActiveSession as exc:
+            return {"ok": False, "error": "no_active_session", "message": str(exc)}
+    else:
+        session.start_new(prompt)
+
     try:
         candidates = generate_image(
             prompt,
@@ -49,7 +79,32 @@ def generate_image_tool(
     except PipelineExecutionError as exc:
         return {"ok": False, "error": "pipeline_failed", "message": str(exc)}
 
-    return {"ok": True, "candidates": [_save_candidate(c) for c in candidates]}
+    saved = [_save_candidate(c) for c in candidates]
+    session.record_round(saved)
+
+    return [
+        *(_thumbnail(c.image) for c in candidates),
+        {
+            "ok": True,
+            "cap_hit": False,
+            "rounds_used": session.current().rounds_used,
+            "candidates": saved,
+        },
+    ]
+
+
+def _cap_hit_result() -> list:
+    recent = session.most_recent_round()
+    return [
+        *(_thumbnail(PILImage.open(c["path"])) for c in recent),
+        {
+            "ok": True,
+            "cap_hit": True,
+            "rounds_used": session.current().rounds_used,
+            "candidates": recent,
+            "message": f"iteration cap ({ITERATION_CAP}) reached; returning the most recent round",
+        },
+    ]
 
 
 def _save_candidate(candidate: GeneratedCandidate) -> dict:
@@ -64,5 +119,13 @@ def _save_candidate(candidate: GeneratedCandidate) -> dict:
     }
 
 
+def _thumbnail(image: PILImage.Image) -> MCPImage:
+    thumb = image.copy()
+    thumb.thumbnail((THUMBNAIL_MAX_EDGE, THUMBNAIL_MAX_EDGE))
+    buf = io.BytesIO()
+    thumb.convert("RGB").save(buf, format="JPEG", quality=THUMBNAIL_QUALITY)
+    return MCPImage(data=buf.getvalue(), format="jpeg")
+
+
 def register(mcp: "MCPServer") -> None:
-    mcp.tool()(generate_image_tool)
+    mcp.tool(structured_output=False)(generate_image_tool)

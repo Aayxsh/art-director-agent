@@ -54,9 +54,9 @@ def generate_image(
     _validate_inputs(prompt, negative_prompt, num_images, guidance_scale, steps)
 
     resolved_seed = seed if seed is not None else (seed_factory or _random_seed)()
-    if pipeline_call is None:
-        _load_real_pipeline()  # one-time weight load; not counted against timeout_seconds
     call = pipeline_call or _default_pipeline_call
+    if call is _real_pipeline_call:
+        _load_real_pipeline()  # one-time weight load; not counted against timeout_seconds
 
     images = _run_with_timeout(
         call,
@@ -140,11 +140,7 @@ def _load_real_pipeline():
     return _real_pipeline
 
 
-# The sanctioned test seam for MCP-tool-layer tests: monkeypatch this name
-# (e.g. `monkeypatch.setattr(generate_module, "_default_pipeline_call", fake)`)
-# rather than threading pipeline_call through generate_image_tool()'s own
-# interface, which would leak GPU plumbing into the agent-facing tool schema.
-def _default_pipeline_call(
+def _real_pipeline_call(
     *,
     prompt: str,
     negative_prompt: str,
@@ -164,3 +160,13 @@ def _default_pipeline_call(
         generator=generator,
     )
     return result.images
+
+
+# The sanctioned test seam for MCP-tool-layer tests: monkeypatch this name
+# (e.g. `monkeypatch.setattr(generate_module, "_default_pipeline_call", fake)`)
+# rather than threading pipeline_call through generate_image_tool()'s own
+# interface, which would leak GPU plumbing into the agent-facing tool schema.
+# Kept separate from _real_pipeline_call so generate_image() can tell whether
+# it's genuinely about to run the real pipeline (and needs the untimed
+# warm-up) or a faked one (and must not touch the GPU at all).
+_default_pipeline_call = _real_pipeline_call

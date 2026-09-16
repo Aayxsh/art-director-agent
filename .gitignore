@@ -20,3 +20,6 @@ eval/results/*.json
 
 # OS
 .DS_Store
+
+# Claude Code session runtime state
+.claude/scheduled_tasks.lock

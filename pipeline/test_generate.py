@@ -108,6 +108,22 @@ def test_generate_image_wraps_timeouts():
         )
 
 
+def test_generate_image_never_touches_the_real_pipeline_when_default_call_is_faked(monkeypatch):
+    def load_real_pipeline_must_not_be_called():
+        raise AssertionError(
+            "_load_real_pipeline should not run when _default_pipeline_call is faked"
+        )
+
+    monkeypatch.setattr(
+        generate_module, "_load_real_pipeline", load_real_pipeline_must_not_be_called
+    )
+    monkeypatch.setattr(generate_module, "_default_pipeline_call", _fake_pipeline_call)
+
+    candidates = generate_image("a red bicycle", num_images=1)
+
+    assert len(candidates) == 1
+
+
 @pytest.mark.gpu
 def test_generate_image_runs_real_sdxl_pipeline_end_to_end():
     candidates = generate_image("a small red bicycle on a white background", num_images=1, steps=15)
