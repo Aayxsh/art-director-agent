@@ -64,6 +64,9 @@ Update this section at the end of every session. One line per phase, status only
 - Tests live next to the code they test (`pipeline/generate.py` →
   `pipeline/test_generate.py`), driven by `/tdd` — red, green, refactor, one
   vertical slice at a time. Don't write implementation ahead of a failing test.
+- MCP-tool-layer tests fake the underlying pipeline call by monkeypatching
+  `pipeline.generate._default_pipeline_call` — the sanctioned internal seam,
+  not a per-tool convention to reinvent (see `mcp_server/tools/test_generate_image.py`).
 - Commit after each completed phase (matching the agentic-rag-eval workflow) —
   small, reviewable, message states what changed and why.
 - No giant files. If something creeps past ~300 lines, that's a

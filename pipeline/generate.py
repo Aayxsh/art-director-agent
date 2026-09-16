@@ -133,6 +133,10 @@ def _load_real_pipeline():
     return _real_pipeline
 
 
+# The sanctioned test seam for MCP-tool-layer tests: monkeypatch this name
+# (e.g. `monkeypatch.setattr(generate_module, "_default_pipeline_call", fake)`)
+# rather than threading pipeline_call through generate_image_tool()'s own
+# interface, which would leak GPU plumbing into the agent-facing tool schema.
 def _default_pipeline_call(
     *,
     prompt: str,
