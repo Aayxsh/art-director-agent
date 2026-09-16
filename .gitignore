@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Env / secrets
+.env
+*.key
+
+# Model weights & generated artifacts — never commit these
+*.safetensors
+*.ckpt
+models/
+outputs/
+generated_images/
+eval/results/*.json
+
+# OS
+.DS_Store
