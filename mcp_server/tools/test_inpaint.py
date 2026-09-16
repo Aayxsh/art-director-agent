@@ -4,6 +4,7 @@ import pytest
 from mcp.server.mcpserver import Image as MCPImage
 from PIL import Image
 
+import eval.scoring as scoring_module
 import pipeline.inpaint as inpaint_module
 from mcp_server.session import ITERATION_CAP, session
 from mcp_server.tools.generate_image import generate_image_tool
@@ -18,11 +19,16 @@ def fake_pipelines(monkeypatch, tmp_path):
     def fake_inpaint(*, image, mask, prompt, negative_prompt, guidance_scale, steps, seed):
         return image.copy()
 
+    def fake_score(*, image, prompt):
+        return 50.0
+
     import pipeline.generate as generate_module
 
     monkeypatch.setattr(generate_module, "_default_pipeline_call", fake_generate)
     monkeypatch.setattr(inpaint_module, "_default_pipeline_call", fake_inpaint)
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", fake_score)
     monkeypatch.setattr("mcp_server.tools._media.OUTPUT_DIR", tmp_path)
+    monkeypatch.setattr("eval.logging.RESULTS_DIR", tmp_path)
     session.clear()
     yield
     session.clear()
@@ -56,7 +62,23 @@ def test_inpaint_tool_fixes_the_region_and_returns_image_and_metadata():
     candidate = metadata["candidates"][0]
     assert candidate["prompt"] == "a normal hand"
     assert candidate["source_path"] == path
+    assert candidate["clip_score"] == 50.0
     assert Path(candidate["path"]).exists()
+
+
+def test_inpaint_tool_scores_against_the_session_brief_not_the_fix_prompt(monkeypatch):
+    path = _existing_candidate_path()
+    seen_prompts = []
+
+    def recording_score(*, image, prompt):
+        seen_prompts.append(prompt)
+        return 50.0
+
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", recording_score)
+
+    inpaint_tool(path, x0=0.1, y0=0.1, x1=0.5, y1=0.5, prompt="a normal hand")
+
+    assert seen_prompts == ["a red bicycle"]
 
 
 def test_inpaint_tool_rejects_a_path_outside_the_current_session():
@@ -89,8 +111,16 @@ def test_inpaint_tool_returns_structured_error_for_invalid_bbox():
     assert result["error"] == "invalid_input"
 
 
-def test_inpaint_tool_stops_generating_once_the_cap_is_reached():
+def test_inpaint_tool_stops_generating_once_the_cap_is_reached(monkeypatch):
     path = _existing_candidate_path()
+
+    score_count = {"n": 0}
+
+    def increasing_score(*, image, prompt):
+        score_count["n"] += 1
+        return float(score_count["n"])
+
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", increasing_score)
 
     for _ in range(ITERATION_CAP - 1):
         inpaint_tool(path, x0=0.1, y0=0.1, x1=0.5, y1=0.5, prompt="fix")

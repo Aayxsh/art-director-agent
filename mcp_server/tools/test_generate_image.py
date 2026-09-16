@@ -4,6 +4,7 @@ import pytest
 from mcp.server.mcpserver import Image as MCPImage
 from PIL import Image
 
+import eval.scoring as scoring_module
 import pipeline.generate as generate_module
 from mcp_server.session import ITERATION_CAP, session
 from mcp_server.tools.generate_image import generate_image_tool
@@ -14,8 +15,13 @@ def fake_pipeline(monkeypatch, tmp_path):
     def fake_call(*, prompt, negative_prompt, num_images, guidance_scale, steps, seed):
         return [Image.new("RGB", (8, 8)) for _ in range(num_images)]
 
+    def fake_score(*, image, prompt):
+        return 50.0
+
     monkeypatch.setattr(generate_module, "_default_pipeline_call", fake_call)
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", fake_score)
     monkeypatch.setattr("mcp_server.tools._media.OUTPUT_DIR", tmp_path)
+    monkeypatch.setattr("eval.logging.RESULTS_DIR", tmp_path)
     session.clear()
     yield
     session.clear()
@@ -47,7 +53,36 @@ def test_generate_image_tool_returns_images_and_saved_metadata():
     for candidate in metadata["candidates"]:
         assert candidate["seed"] == 1
         assert candidate["prompt"] == "a red bicycle"
+        assert candidate["clip_score"] == 50.0
         assert Path(candidate["path"]).exists()
+
+
+def test_generate_image_tool_scores_against_the_session_brief_not_the_round_prompt(monkeypatch):
+    seen_prompts = []
+
+    def recording_score(*, image, prompt):
+        seen_prompts.append(prompt)
+        return 50.0
+
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", recording_score)
+
+    generate_image_tool("a red bicycle", num_images=1)
+    generate_image_tool("a red bicycle, fixed hands", num_images=1, continue_session=True)
+
+    assert seen_prompts == ["a red bicycle", "a red bicycle"]
+
+
+def test_generate_image_tool_omits_clip_score_when_scoring_fails(monkeypatch):
+    def failing_score(**_kwargs):
+        raise RuntimeError("scoring boom")
+
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", failing_score)
+
+    result = generate_image_tool("a red bicycle", num_images=1)
+
+    metadata = _metadata(result)
+    assert metadata["ok"] is True
+    assert metadata["candidates"][0]["clip_score"] is None
 
 
 def test_generate_image_tool_starts_a_fresh_session_by_default():
@@ -83,7 +118,16 @@ def test_generate_image_tool_stops_generating_once_the_cap_is_reached(monkeypatc
         call_count["n"] += 1
         return [Image.new("RGB", (8, 8)) for _ in range(num_images)]
 
+    # Increasing scores so the most recent round is unambiguously "best" —
+    # isolates cap enforcement from best_scoring_round's own tie-breaking.
+    score_count = {"n": 0}
+
+    def increasing_score(*, image, prompt):
+        score_count["n"] += 1
+        return float(score_count["n"])
+
     monkeypatch.setattr(generate_module, "_default_pipeline_call", counting_call)
+    monkeypatch.setattr(scoring_module, "_default_pipeline_call", increasing_score)
 
     generate_image_tool("a red bicycle", num_images=1)
     for _ in range(ITERATION_CAP - 1):

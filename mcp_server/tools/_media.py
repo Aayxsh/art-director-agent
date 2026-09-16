@@ -5,6 +5,8 @@ from pathlib import Path
 from mcp.server.mcpserver import Image as MCPImage
 from PIL import Image as PILImage
 
+from eval.scoring import PipelineExecutionError, score_image
+
 OUTPUT_DIR = Path("outputs")
 THUMBNAIL_MAX_EDGE = 768
 THUMBNAIL_QUALITY = 90
@@ -23,3 +25,15 @@ def thumbnail(image: PILImage.Image) -> MCPImage:
     buf = io.BytesIO()
     thumb.convert("RGB").save(buf, format="JPEG", quality=THUMBNAIL_QUALITY)
     return MCPImage(data=buf.getvalue(), format="jpeg")
+
+
+def score_or_none(image: PILImage.Image, prompt: str) -> float | None:
+    """CLIP score against `prompt`, or None if scoring fails.
+
+    Advisory (ADR 0004) — a scoring failure must never block the primary
+    generation/inpaint result from succeeding.
+    """
+    try:
+        return score_image(image, prompt)
+    except PipelineExecutionError:
+        return None

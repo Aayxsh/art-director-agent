@@ -29,3 +29,11 @@ round's candidates instead of the *best-scoring* ones — same shape
 ranking. Phase 4 swaps "most recent" for "best-scoring by CLIP" as a
 non-breaking change to `mcp_server/tools/generate_image.py`'s
 `_cap_hit_result`.
+
+**Phase 4 refinement:** implemented as "the *round* containing the
+highest-scoring candidate," not literally a single winning image —
+`mcp_server/session.py`'s `best_scoring_round()` returns that whole
+round's candidate list, keeping the one response shape every other round
+(and `inpaint`'s cap-hit path) already uses, rather than introducing a
+second, singular-candidate response shape. See ADR 0010 for why every
+candidate now has a score to rank by in the first place.

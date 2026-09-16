@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from PIL import Image as PILImage
 
 from mcp_server.session import ITERATION_CAP, NoActiveSession, session
-from mcp_server.tools._media import save_image, thumbnail
+from mcp_server.tools._media import save_image, score_or_none, thumbnail
 from pipeline.inpaint import (
     InpaintedCandidate,
     InvalidInpaintInput,
@@ -38,11 +38,13 @@ def inpaint_tool(
     inpaint legitimately starts a fresh one — and fails with
     `no_active_session` if nothing was started via generate_image first.
     Shares generate_image's 5-round cap (ADR 0003): once reached, returns
-    the most recent round again unchanged, flagged `cap_hit: true`.
+    the best-scoring round again unchanged, flagged `cap_hit: true`.
 
-    Same response shape as generate_image_tool: a list of viewable JPEG
-    thumbnails plus a trailing metadata dict on success, a single
-    structured error dict (`invalid_input`, `unknown_candidate`,
+    The result is automatically CLIP-scored against the session's brief
+    (`clip_score`, 0-100, `null` if scoring failed) — advisory only
+    (ADR 0004). Same response shape as generate_image_tool: a list of
+    viewable JPEG thumbnails plus a trailing metadata dict on success, a
+    single structured error dict (`invalid_input`, `unknown_candidate`,
     `pipeline_failed`, `no_active_session`) on failure.
     """
     try:
@@ -74,7 +76,7 @@ def inpaint_tool(
     except PipelineExecutionError as exc:
         return {"ok": False, "error": "pipeline_failed", "message": str(exc)}
 
-    saved = _save_candidate(candidate)
+    saved = _save_candidate(candidate, session.current().brief)
     session.record_round([saved])
 
     return [
@@ -89,20 +91,20 @@ def inpaint_tool(
 
 
 def _cap_hit_result() -> list:
-    recent = session.most_recent_round()
+    best = session.best_scoring_round()
     return [
-        *(thumbnail(PILImage.open(c["path"])) for c in recent),
+        *(thumbnail(PILImage.open(c["path"])) for c in best),
         {
             "ok": True,
             "cap_hit": True,
             "rounds_used": session.current().rounds_used,
-            "candidates": recent,
-            "message": f"iteration cap ({ITERATION_CAP}) reached; returning the most recent round",
+            "candidates": best,
+            "message": f"iteration cap ({ITERATION_CAP}) reached; returning the best-scoring round",
         },
     ]
 
 
-def _save_candidate(candidate: InpaintedCandidate) -> dict:
+def _save_candidate(candidate: InpaintedCandidate, brief: str) -> dict:
     path = save_image(candidate.image)
     return {
         "path": str(path),
@@ -111,6 +113,7 @@ def _save_candidate(candidate: InpaintedCandidate) -> dict:
         "negative_prompt": candidate.negative_prompt,
         "source_path": candidate.source_path,
         "bbox": candidate.bbox,
+        "clip_score": score_or_none(candidate.image, brief),
     }
 
 

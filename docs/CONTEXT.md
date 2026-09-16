@@ -16,7 +16,7 @@ stale; an outdated glossary is worse than none.
 | **Acceptable** | The point at which the agent's own vision critique judges a candidate good enough to upscale. `score_image`'s CLIP score is an advisory secondary signal, not a hard gate — see ADR 0004 | Settled |
 | **Iteration cap** | Max rounds before the loop force-stops regardless of score: 5, shared across all fix types (no separate budget for `inpaint`) — see ADR 0003 | Settled |
 | **Session** | One full brief-to-final-image run, spanning possibly many iterations. Tracked server-side as implicit global state, no `session_id` — `generate_image`'s `continue_session` flag starts fresh (`False`) or advances the active one (`True`) — see ADR 0007 | Settled |
-| **Cap-out** | When a session hits the iteration cap without the agent confirming any candidate as Acceptable. Returns the best-scoring candidate by CLIP score, explicitly flagged as unconfirmed, once `score_image` exists (ADR 0005) — until Phase 4, returns the *most recent* round's candidates instead, same flagging | Settled |
+| **Cap-out** | When a session hits the iteration cap without the agent confirming any candidate as Acceptable. Returns the round containing the highest-scoring candidate by CLIP score, explicitly flagged as unconfirmed (falls back to the most recent round if nothing has a score) — see ADR 0005, ADR 0010 | Settled |
 
 ## Open questions for the next `/grill-with-docs` session
 
@@ -33,3 +33,5 @@ stale; an outdated glossary is worse than none.
 - Session tracked as implicit global state, no `session_id` — [ADR 0007](adr/0007-implicit-global-session.md)
 - `inpaint` takes a normalized bounding box, reuses the base pipeline's shared components (no dedicated inpainting checkpoint) — [ADR 0008](adr/0008-bbox-mask-shared-inpaint-pipeline.md)
 - `upscale` is a refiner pass + plain resize, not a super-resolution model; doesn't count against the round cap — [ADR 0009](adr/0009-upscale-is-refiner-plus-resize.md)
+- Every candidate is CLIP-scored automatically against the session brief, not only on request — [ADR 0010](adr/0010-automatic-clip-scoring.md)
+- Session history persists to disk (one JSON file per session) so the Phase 5 demo, a separate process, can read it — [ADR 0011](adr/0011-persisted-session-history.md)

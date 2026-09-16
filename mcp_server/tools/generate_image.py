@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from PIL import Image as PILImage
 
 from mcp_server.session import ITERATION_CAP, NoActiveSession, session
-from mcp_server.tools._media import save_image, thumbnail
+from mcp_server.tools._media import save_image, score_or_none, thumbnail
 from pipeline.generate import (
     GeneratedCandidate,
     InvalidGenerationInput,
@@ -33,9 +33,13 @@ def generate_image_tool(
 
     A session gets 5 rounds total (ADR 0003), shared across every kind of
     fix. Once the cap is reached, further `continue_session=True` calls
-    don't run generation again — they return the most recent round's
+    don't run generation again — they return the best-scoring round's
     candidates again with `cap_hit: true`, never silently as a fresh
     success and never discarding the work already done.
+
+    Each candidate is automatically scored against the session's brief
+    with CLIP (`clip_score`, 0-100, `null` if scoring failed) — advisory
+    only (ADR 0004), the agent's own vision judgment is still primary.
 
     On success, returns a list mixing viewable JPEG thumbnails (resized;
     the full-resolution PNG is only on disk, at each candidate's `path`)
@@ -72,7 +76,8 @@ def generate_image_tool(
     except PipelineExecutionError as exc:
         return {"ok": False, "error": "pipeline_failed", "message": str(exc)}
 
-    saved = [_save_candidate(c) for c in candidates]
+    brief = session.current().brief
+    saved = [_save_candidate(c, brief) for c in candidates]
     session.record_round(saved)
 
     return [
@@ -87,26 +92,27 @@ def generate_image_tool(
 
 
 def _cap_hit_result() -> list:
-    recent = session.most_recent_round()
+    best = session.best_scoring_round()
     return [
-        *(thumbnail(PILImage.open(c["path"])) for c in recent),
+        *(thumbnail(PILImage.open(c["path"])) for c in best),
         {
             "ok": True,
             "cap_hit": True,
             "rounds_used": session.current().rounds_used,
-            "candidates": recent,
-            "message": f"iteration cap ({ITERATION_CAP}) reached; returning the most recent round",
+            "candidates": best,
+            "message": f"iteration cap ({ITERATION_CAP}) reached; returning the best-scoring round",
         },
     ]
 
 
-def _save_candidate(candidate: GeneratedCandidate) -> dict:
+def _save_candidate(candidate: GeneratedCandidate, brief: str) -> dict:
     path = save_image(candidate.image)
     return {
         "path": str(path),
         "seed": candidate.seed,
         "prompt": candidate.prompt,
         "negative_prompt": candidate.negative_prompt,
+        "clip_score": score_or_none(candidate.image, brief),
     }
 
 

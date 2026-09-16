@@ -42,11 +42,11 @@ Update this section at the end of every session. One line per phase, status only
 | 1 | MCP server scaffold + `generate_image` tool (base SDXL, no fixes yet) | Done |
 | 2 | Critique loop: agent inspects output, diagnoses problems | Done |
 | 3 | `inpaint` + `upscale` tools wired into the loop | Done |
-| 4 | `score_image` + `get_history`, iteration logging for the demo | Not started |
+| 4 | `score_image` + `get_history`, iteration logging for the demo | Done |
 | 5 | Deployed demo + README with before/after grid | Not started |
 
-**Current focus:** Phase 4 — `score_image` + `get_history`, iteration logging for the demo.
-**Known issues / open questions:** Running base + inpaint + refiner pipelines back-to-back in one process can exhaust system RAM (31GB total) and get OS-killed, even though GPU VRAM is fine — observed during Phase 3's GPU test validation. Run GPU-marked tests for different pipeline modules in separate `pytest` invocations, not one combined `-m gpu` sweep, until this is understood better.
+**Current focus:** Phase 5 — deployed demo + README with a before/after grid.
+**Known issues / open questions:** Running base + inpaint + refiner pipelines back-to-back in one process can exhaust system RAM (31GB total) and get OS-killed, even though GPU VRAM is fine — observed during Phase 3's GPU test validation. Run GPU-marked tests for different pipeline modules in separate `pytest` invocations, not one combined `-m gpu` sweep, until this is understood better. Note for Phase 5: `eval/results/*.json` may hold multiple past sessions (ADR 0011) — the demo needs a way to pick one, not assume exactly one file exists.
 
 ---
 
