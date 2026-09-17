@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "art-director-agent": {
+      "command": ".venv/Scripts/python.exe",
+      "args": ["-m", "mcp_server.server"],
+      "cwd": "."
+    }
+  }
+}

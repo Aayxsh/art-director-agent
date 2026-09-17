@@ -110,6 +110,13 @@ Live generation (`mcp_server.server`) requires a CUDA GPU — this project runs
 against a local RTX 5070 Ti (16GB), see `docs/adr/0002-local-inference-hosting.md`
 for the VRAM budget and why hosted inference wasn't used.
 
+**Running the loop interactively:** `.mcp.json` registers the server for
+MCP clients that auto-discover project config (Claude Code, Claude Desktop).
+Point your client at this repo, start (or restart) it, and just describe a
+brief — the agent calls `generate_image`/`inpaint`/`upscale`/`score_image`
+as real tools and critiques the results with vision, live, the same loop
+`docs/EVAL.md`'s benchmark ran 24 times.
+
 The **demo is a replay viewer**, not a live generator (ADR 0011) — it only
 reads the curated sessions in `demo/examples/`, so it needs no GPU and is
 deployable anywhere Streamlit runs, e.g.
